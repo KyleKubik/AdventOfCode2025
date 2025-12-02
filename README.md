@@ -4,4 +4,4 @@ Input files are ignored from the repo and must be downloaded from https://advent
 
 Code can be built using gcc:
 
-``gcc dayOne/dayOne.c -o output/dayOne``
+``gcc dayOne/dayOne.c -o build/dayOne``
