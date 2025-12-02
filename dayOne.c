@@ -22,11 +22,20 @@ int main() {
             }else if(data >= 48 && data <= 57){
               move = move*10 + (data - 48);
             }else if(data == '\n'){
+              int prev_location = location;
               location += dir*move;
-              location = location % 100;
-              if(location == 0){
-                count +=1;
+              int quotient = location / 100;
+              int remainder = location % 100;
+              if((prev_location < 0 && location > 0) || (prev_location > 0 && location < 0)){
+                count += 1;
               }
+              if(quotient != 0){
+                count += abs(quotient);
+              }else if(remainder == 0){
+                count += 1;
+              }
+              location = remainder;
+              printf("location: %i count: %i \n",location, count);
               move = 0;
             }else if(data == EOF){
               break;
