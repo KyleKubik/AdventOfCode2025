@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define joltage_size 12
 
@@ -39,6 +40,7 @@ int main(int argc, char **argv) {
   printf("grid size %i x %i\n",rows,cols);
   char* grid = malloc(rows * cols * sizeof(char));
   char* print_grid = malloc(rows * cols * sizeof(char));
+  char* after_grid = malloc(rows * cols * sizeof(char));
   int col = 0;
   int row = 0;
 
@@ -79,39 +81,59 @@ int main(int argc, char **argv) {
   
   //third pass to count the data
   unsigned long long available = 0;
-  for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) {
-      if(grid[(i)*cols + (j)]){
-        int neighbors = 0;
-        if(i>0      && j>0      ){neighbors += grid[(i-1)*cols + (j-1)];}
-        if(            j>0      ){neighbors += grid[( i )*cols + (j-1)];}
-        if(i<rows-1 && j>0      ){neighbors += grid[(i+1)*cols + (j-1)];}
-        if(i>0                  ){neighbors += grid[(i-1)*cols + ( j )];}
-        if(i<rows-1             ){neighbors += grid[(i+1)*cols + ( j )];}
-        if(i>0      && j<cols-1 ){neighbors += grid[(i-1)*cols + (j+1)];}
-        if(j<cols-1             ){neighbors += grid[( i )*cols + (j+1)];}
-        if(i<rows-1 && j<cols-1 ){neighbors += grid[(i+1)*cols + (j+1)];}
-        if(neighbors < 4){
-          available++;
-          print_grid[(i)*cols + (j)] = 'x';
+  unsigned long long total_removed = 0;
+  do{
+    available = 0;
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        if(grid[(i)*cols + (j)]){
+          int neighbors = 0;
+          if(i>0      && j>0      ){neighbors += grid[(i-1)*cols + (j-1)];}
+          if(            j>0      ){neighbors += grid[( i )*cols + (j-1)];}
+          if(i<rows-1 && j>0      ){neighbors += grid[(i+1)*cols + (j-1)];}
+          if(i>0                  ){neighbors += grid[(i-1)*cols + ( j )];}
+          if(i<rows-1             ){neighbors += grid[(i+1)*cols + ( j )];}
+          if(i>0      && j<cols-1 ){neighbors += grid[(i-1)*cols + (j+1)];}
+          if(j<cols-1             ){neighbors += grid[( i )*cols + (j+1)];}
+          if(i<rows-1 && j<cols-1 ){neighbors += grid[(i+1)*cols + (j+1)];}
+          if(neighbors < 4){
+            available++;
+            print_grid[(i)*cols + (j)] = 'x';
+            after_grid[(i)*cols + (j)] = 0;
+          }else{
+            print_grid[(i)*cols + (j)] = '@';
+            after_grid[(i)*cols + (j)] = 1;
+          }
         }else{
-          print_grid[(i)*cols + (j)] = '@';
+          print_grid[(i)*cols + (j)] = '.';
+          after_grid[(i)*cols + (j)] = 0;
         }
-      }else{
-        print_grid[(i)*cols + (j)] = '.';
       }
     }
-  }
-  
-  for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) {
-      printf("%c", print_grid[(i)*cols + (j)]);
+    
+    total_removed += available;
+    
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        printf("%c", print_grid[(i)*cols + (j)]);
+      }
+      printf("\n");
     }
+    printf("available rolls %llu\n", available);
     printf("\n");
-  }
+    
+    memcpy(grid,after_grid,rows * cols * sizeof(char));
+  }while(available);
   
   //print our final output
-  printf("available rolls %llu\n", available);
+  printf("total rolls removed %llu\n", total_removed);
+  
+  free(grid);
+  free(print_grid);
+  free(after_grid);
+  grid=NULL;
+  print_grid=NULL;
+  after_grid=NULL;
   
   return 0;
 }
