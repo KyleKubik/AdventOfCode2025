@@ -123,6 +123,7 @@ int main(int argc, char **argv) {
 
   unsigned int num_circuits = 0;
   unsigned int circuit_junctions[1000] = {0};
+  unsigned int biggest_circuit = 0;
   for(int i = 0; i < num_gaps && i < max_connections; i++){
     Junction* j1 = &junctions[gaps[i].j1];
     Junction* j2 = &junctions[gaps[i].j2];
@@ -134,6 +135,7 @@ int main(int argc, char **argv) {
       j1->circuit = num_circuits;
       j2->circuit = num_circuits;
       circuit_junctions[num_circuits] += 2;
+      if(circuit_junctions[num_circuits] > biggest_circuit){biggest_circuit = circuit_junctions[num_circuits];}
       num_circuits += 1;
     }else if(j1->circuit == j2->circuit){
       printf("j1 already connected to j2 - skip\n");
@@ -147,6 +149,7 @@ int main(int argc, char **argv) {
         printf("circuit %i transfered to circuit %i\n",circuit2,circuit1);
         circuit_junctions[j1->circuit] += size2;
         circuit_junctions[j2->circuit] = 0;
+        if(circuit_junctions[j1->circuit] > biggest_circuit){biggest_circuit = circuit_junctions[j1->circuit];}
         int num = 0;
         for(int k = 0; k< num_junctions; k++){
           if(junctions[k].circuit == circuit2){
@@ -160,6 +163,7 @@ int main(int argc, char **argv) {
         printf("circuit %i transfered to circuit %i\n",circuit1,circuit2);
         circuit_junctions[j2->circuit] += size1;
         circuit_junctions[j1->circuit] = 0;
+        if(circuit_junctions[j2->circuit] > biggest_circuit){biggest_circuit = circuit_junctions[j2->circuit];}
         int num = 0;
         for(int k = 0; k< num_junctions; k++){
           if(junctions[k].circuit == circuit1){
@@ -173,10 +177,20 @@ int main(int argc, char **argv) {
       printf("j2 added to circuit %i\n",j1->circuit);
       j2->circuit = j1->circuit;
       circuit_junctions[j1->circuit] += 1;
+      if(circuit_junctions[j1->circuit] > biggest_circuit){biggest_circuit = circuit_junctions[j1->circuit];}
     }else if(j2->circuit >= 0){
       printf("j1 added to circuit %i\n",j2->circuit);
       j1->circuit = j2->circuit;
       circuit_junctions[j2->circuit] += 1;
+      if(circuit_junctions[j2->circuit] > biggest_circuit){biggest_circuit = circuit_junctions[j2->circuit];}
+    }
+    
+    if(biggest_circuit == num_junctions){
+      printf("finally completed the circuit!\n");
+      printf("[%i,%i,%i] - ",j1->x,j1->y,j1->z);
+      printf("[%i,%i,%i]\n",j2->x,j2->y,j2->z);
+      printf("answer: %llu\n",j1->x * j2->x);
+      break;
     }
   }
   
